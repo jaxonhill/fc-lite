@@ -143,6 +143,8 @@ def get_class_info_from_urls(urls: list[str], driver: WebDriver) -> dict:
     # Final Info dict, keys are the column names, values are arrays with respective info
     final_info = {
         "class": [],
+        "class_info": [],
+        "room": [],
         "dates_times": [],
         "instructor": [],
     }
@@ -174,6 +176,12 @@ def get_class_info_from_urls(urls: list[str], driver: WebDriver) -> dict:
         class_name: str = str(class_name_element.text)
         print(class_name)
 
+        # Get the class info
+        class_info_element = driver.find_element(
+            By.CSS_SELECTOR, "#SSR_CRSE_INFO_V_COURSE_TITLE_LONG"
+        )
+        class_info: str = str(class_info_element.text)
+
         # Get all instructor td elements
         instructor_tds = tbody.find_elements(By.CSS_SELECTOR, "td.INSTRUCTOR")
         # For each row of instructors
@@ -184,6 +192,7 @@ def get_class_info_from_urls(urls: list[str], driver: WebDriver) -> dict:
                 curr_instructors.append(str(span.text))
             # APPEND CLASS NAME ONLY HERE
             final_info["class"].append(class_name)
+            final_info["class_info"].append(class_info)
             final_info["instructor"].append(curr_instructors)
 
         # Get all dates_times td elements
@@ -195,6 +204,16 @@ def get_class_info_from_urls(urls: list[str], driver: WebDriver) -> dict:
             for date_span in date_spans:
                 curr_dates_times.append(str(date_span.text))
             final_info["dates_times"].append(curr_dates_times)
+
+        # Get all room td elements
+        room_tds = tbody.find_elements(By.CSS_SELECTOR, "td.ROOM")
+        # For each row of dates
+        for room_td in room_tds:
+            curr_rooms: list[str] = []
+            room_spans = room_td.find_elements(By.TAG_NAME, "span")
+            for room_span in room_spans:
+                curr_rooms.append(str(room_span.text))
+            final_info["room"].append(curr_rooms)
 
     return final_info
 
